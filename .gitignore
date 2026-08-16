@@ -1,0 +1,28 @@
+# Java / Maven
+backend/api/target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+
+# Flutter
+flutter_app/.dart_tool/
+flutter_app/.packages
+flutter_app/build/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+flutter_app/pubspec.lock
+
+# Environment
+*.env
+*.log
+
+# Firebase credentials
+*serviceAccount*.json
+!*.example.json

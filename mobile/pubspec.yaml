@@ -1,7 +1,7 @@
 name: kids_learning_app
 description: "Kids learning app with Math and English"
 publish_to: 'none'
-version: 3.0.0+5
+version: 3.0.1+6
 
 environment:
   sdk: ^3.11.0

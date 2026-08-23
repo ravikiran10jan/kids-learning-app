@@ -61,19 +61,19 @@ final List<Skill> englishCambridgeSkills = [
   Skill(id: 'es37', subject: Subject.ENGLISH, unitCode: 'ENG-E8', title: 'Short Stories', icon: '📚', prerequisites: ['es35'], itemIds: ['ei336','ei337','ei338','ei339','ei340','ei341']),
   Skill(id: 'es38', subject: Subject.ENGLISH, unitCode: 'ENG-E8', title: 'Sequencing', icon: '🔢', prerequisites: ['es35'], itemIds: ['ei342','ei343','ei344','ei345','ei346','ei347']),
   // Unit E9 - Vocabulary & Spelling
-  Skill(id: 'es39', subject: Subject.ENGLISH, unitCode: 'ENG-E9', title: 'Missing Letters', icon: '✏️', prerequisites: ['es14'], itemIds: ['ei348','ei349','ei350','ei351','ei352','ei353','ei354','ei355','ei356','ei357','ei358','ei359']),
-  Skill(id: 'es40', subject: Subject.ENGLISH, unitCode: 'ENG-E9', title: 'Spelling Challenge', icon: '🏆', prerequisites: ['es30'], itemIds: ['ei360','ei361','ei362','ei363','ei364','ei365','ei366','ei367','ei368','ei369','ei370','ei371']),
-  Skill(id: 'es41', subject: Subject.ENGLISH, unitCode: 'ENG-E9', title: 'Vocabulary Builder', icon: '📚', prerequisites: ['es29'], itemIds: ['ei372','ei373','ei374','ei375','ei376','ei377','ei378','ei379','ei380','ei381']),
+  Skill(id: 'es39', subject: Subject.ENGLISH, unitCode: 'ENG-E9', title: 'Missing Letters', icon: '✏️', prerequisites: [], itemIds: ['ei348','ei349','ei350','ei351','ei352','ei353','ei354','ei355','ei356','ei357','ei358','ei359']),
+  Skill(id: 'es40', subject: Subject.ENGLISH, unitCode: 'ENG-E9', title: 'Spelling Challenge', icon: '🏆', prerequisites: ['es39'], itemIds: ['ei360','ei361','ei362','ei363','ei364','ei365','ei366','ei367','ei368','ei369','ei370','ei371']),
+  Skill(id: 'es41', subject: Subject.ENGLISH, unitCode: 'ENG-E9', title: 'Vocabulary Builder', icon: '📚', prerequisites: ['es39'], itemIds: ['ei372','ei373','ei374','ei375','ei376','ei377','ei378','ei379','ei380','ei381']),
   // Unit E10 - Singular, Plural & Matching
-  Skill(id: 'es42', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Regular Plurals', icon: '👯', prerequisites: ['es27'], itemIds: ['ei382','ei383','ei384','ei385','ei386','ei387','ei388','ei389','ei390','ei391','ei392','ei393']),
+  Skill(id: 'es42', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Regular Plurals', icon: '👯', prerequisites: [], itemIds: ['ei382','ei383','ei384','ei385','ei386','ei387','ei388','ei389','ei390','ei391','ei392','ei393']),
   Skill(id: 'es43', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Irregular Plurals', icon: '🔄', prerequisites: ['es42'], itemIds: ['ei394','ei395','ei396','ei397','ei398','ei399','ei400','ei401','ei402','ei403']),
-  Skill(id: 'es44', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Word Matching', icon: '🔗', prerequisites: ['es27'], itemIds: ['ei404','ei405','ei406','ei407','ei408','ei409','ei410','ei411','ei412','ei413']),
-  Skill(id: 'es45', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Category Matching', icon: '🏷️', prerequisites: ['es29'], itemIds: ['ei414','ei415','ei416','ei417','ei418','ei419','ei420','ei421','ei422','ei423']),
+  Skill(id: 'es44', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Word Matching', icon: '🔗', prerequisites: ['es42'], itemIds: ['ei404','ei405','ei406','ei407','ei408','ei409','ei410','ei411','ei412','ei413']),
+  Skill(id: 'es45', subject: Subject.ENGLISH, unitCode: 'ENG-E10', title: 'Category Matching', icon: '🏷️', prerequisites: ['es42'], itemIds: ['ei414','ei415','ei416','ei417','ei418','ei419','ei420','ei421','ei422','ei423']),
   // Unit E11 - Sentence Building & More
-  Skill(id: 'es46', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Build More Sentences', icon: '✏️', prerequisites: ['es35'], itemIds: ['ei424','ei425','ei426','ei427','ei428','ei429','ei430','ei431','ei432','ei433']),
-  Skill(id: 'es47', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Word Order', icon: '📝', prerequisites: ['es35'], itemIds: ['ei434','ei435','ei436','ei437','ei438','ei439','ei440','ei441']),
-  Skill(id: 'es48', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Vocabulary in Context', icon: '🧠', prerequisites: ['es41'], itemIds: ['ei442','ei443','ei444','ei445','ei446','ei447','ei448','ei449','ei450','ei451']),
-  Skill(id: 'es49', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Picture-Word Matching', icon: '🖼️', prerequisites: ['es29'], itemIds: ['ei452','ei453','ei454','ei455','ei456','ei457','ei458','ei459','ei460','ei461']),
+  Skill(id: 'es46', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Build More Sentences', icon: '✏️', prerequisites: [], itemIds: ['ei424','ei425','ei426','ei427','ei428','ei429','ei430','ei431','ei432','ei433']),
+  Skill(id: 'es47', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Word Order', icon: '📝', prerequisites: ['es46'], itemIds: ['ei434','ei435','ei436','ei437','ei438','ei439','ei440','ei441']),
+  Skill(id: 'es48', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Vocabulary in Context', icon: '🧠', prerequisites: ['es46'], itemIds: ['ei442','ei443','ei444','ei445','ei446','ei447','ei448','ei449','ei450','ei451']),
+  Skill(id: 'es49', subject: Subject.ENGLISH, unitCode: 'ENG-E11', title: 'Picture-Word Matching', icon: '🖼️', prerequisites: ['es46'], itemIds: ['ei452','ei453','ei454','ei455','ei456','ei457','ei458','ei459','ei460','ei461']),
 ];
 
 // ─── Items ───────────────────────────────────────────────────────────────────

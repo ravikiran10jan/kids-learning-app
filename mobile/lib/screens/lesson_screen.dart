@@ -38,6 +38,10 @@ class _LessonScreenState extends State<LessonScreen>
   List<String> _arrangedWords = [];
   List<String> _availableWords = [];
 
+  // Cached shuffled options (prevents re-shuffle on rebuild)
+  List<String> _cachedOptions = [];
+  String _cachedOptionKey = '';
+
   late AnimationController _animController;
   late Animation<double> _progressAnim;
 
@@ -92,6 +96,16 @@ class _LessonScreenState extends State<LessonScreen>
     _animController.animateTo(
       (_currentIndex) / widget.lesson.exercises.length,
     );
+  }
+
+  List<String> _getShuffledOptions() {
+    final key = _currentItem.id + _currentIndex.toString();
+    if (key != _cachedOptionKey) {
+      _cachedOptionKey = key;
+      _cachedOptions = [..._currentItem.answer, ..._currentItem.distractors]
+        ..shuffle(Random(_seedRandom(key)));
+    }
+    return _cachedOptions;
   }
 
   void _selectAnswer(String answer) {
@@ -155,6 +169,8 @@ class _LessonScreenState extends State<LessonScreen>
       _firstTry = true;
       _arrangedWords = [];
       _availableWords = [];
+      _cachedOptions = [];
+      _cachedOptionKey = '';
     });
     _updateProgress();
     _initSentenceBuilder();
@@ -230,8 +246,7 @@ class _LessonScreenState extends State<LessonScreen>
   }
 
   Widget _buildStandardOptions(BuildContext context) {
-    final options = [..._currentItem.answer, ..._currentItem.distractors]
-      ..shuffle(Random(_seedRandom(_currentItem.id + _currentIndex.toString())));
+    final options = _getShuffledOptions();
 
     return SingleChildScrollView(
       child: Column(

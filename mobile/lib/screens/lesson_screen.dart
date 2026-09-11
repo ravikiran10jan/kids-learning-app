@@ -9,6 +9,7 @@ import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/sound_util.dart';
 import 'result_screen.dart';
+import '../utils/tts_util.dart';
 
 class LessonScreen extends StatefulWidget {
   final Lesson lesson;
@@ -38,6 +39,11 @@ class _LessonScreenState extends State<LessonScreen>
   List<String> _arrangedWords = [];
   List<String> _availableWords = [];
 
+  // Swap tiles state (spelling exercise)
+  List<String> _swapLetters = [];
+  int? _selectedSwapIndex;
+  String _swapWord = '';
+
   // Cached shuffled options (prevents re-shuffle on rebuild)
   List<String> _cachedOptions = [];
   String _cachedOptionKey = '';
@@ -59,6 +65,7 @@ class _LessonScreenState extends State<LessonScreen>
     );
     _updateProgress();
     _initSentenceBuilder();
+    _initSwapTiles();
   }
 
   void _initSentenceBuilder() {
@@ -67,6 +74,57 @@ class _LessonScreenState extends State<LessonScreen>
       _availableWords = [..._currentItem.answer, ..._currentItem.distractors]
         ..shuffle(Random(_seedRandom(_currentItem.id + _currentIndex.toString())));
     }
+  }
+
+  void _initSwapTiles() {
+    if (_currentItem.exerciseType == ExerciseType.spell_tiles) {
+      final answer = List<String>.from(_currentItem.answer);
+      _swapWord = answer.join('');
+      _swapLetters = List<String>.from(answer);
+      // Shuffle until not in correct order
+      final rng = Random(_seedRandom(_currentItem.id + _currentIndex.toString()));
+      do {
+        _swapLetters.shuffle(rng);
+      } while (_lettersMatch(answer, _swapLetters));
+      _selectedSwapIndex = null;
+      // Auto-play word via TTS
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        TtsUtil.speakWord(_swapWord);
+      });
+    }
+  }
+
+  bool _lettersMatch(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
+  void _swapTap(int index) {
+    if (_answered) return;
+    setState(() {
+      if (_selectedSwapIndex == null) {
+        _selectedSwapIndex = index;
+      } else if (_selectedSwapIndex == index) {
+        _selectedSwapIndex = null; // Deselect
+      } else {
+        // Swap
+        final temp = _swapLetters[_selectedSwapIndex!];
+        _swapLetters[_selectedSwapIndex!] = _swapLetters[index];
+        _swapLetters[index] = temp;
+        _selectedSwapIndex = null;
+        _attempts++;
+        // Auto-check if correct
+        final answer = _currentItem.answer;
+        if (_lettersMatch(answer, _swapLetters)) {
+          SoundUtil.playCorrect();
+          _answered = true;
+          _correct = true;
+        }
+      }
+    });
   }
 
   void _addWord(String word) {
@@ -117,6 +175,8 @@ class _LessonScreenState extends State<LessonScreen>
   }
 
   void _checkAnswer() {
+    // Swap tiles auto-checks on correct arrangement
+    if (_currentItem.exerciseType == ExerciseType.spell_tiles) return;
     bool isCorrect;
     if (_currentItem.exerciseType == ExerciseType.build_sentence) {
       if (_arrangedWords.length != _currentItem.answer.length) return;
@@ -169,11 +229,15 @@ class _LessonScreenState extends State<LessonScreen>
       _firstTry = true;
       _arrangedWords = [];
       _availableWords = [];
+      _swapLetters = [];
+      _selectedSwapIndex = null;
+      _swapWord = '';
       _cachedOptions = [];
       _cachedOptionKey = '';
     });
     _updateProgress();
     _initSentenceBuilder();
+    _initSwapTiles();
   }
 
   void _finishLesson() {
@@ -203,6 +267,8 @@ class _LessonScreenState extends State<LessonScreen>
   Widget build(BuildContext context) {
     final isSentenceBuilder =
         _currentItem.exerciseType == ExerciseType.build_sentence;
+    final isSwapTiles =
+        _currentItem.exerciseType == ExerciseType.spell_tiles;
 
     return Scaffold(
       body: SafeArea(
@@ -232,9 +298,11 @@ class _LessonScreenState extends State<LessonScreen>
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: isSentenceBuilder
-                    ? _buildSentenceBuilder(context)
-                    : _buildStandardOptions(context),
+                child: isSwapTiles
+                    ? _buildSwapTiles(context)
+                    : isSentenceBuilder
+                        ? _buildSentenceBuilder(context)
+                        : _buildStandardOptions(context),
               ),
             ),
             // Bottom feedback + button
@@ -429,6 +497,136 @@ class _LessonScreenState extends State<LessonScreen>
     );
   }
 
+
+  // ─── Swap Tiles (Spelling) UI ───
+  Widget _buildSwapTiles(BuildContext context) {
+    final answer = _currentItem.answer;
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Prompt text
+          Text(
+            _currentItem.prompt.text,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          // Listen again button
+          OutlinedButton.icon(
+            onPressed: () => TtsUtil.speakWord(_swapWord),
+            icon: const Icon(Icons.volume_up, size: 22),
+            label: const Text('Listen again'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.secondary,
+              side: const BorderSide(color: AppColors.secondary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            ),
+          ),
+          const SizedBox(height: 32),
+          // Letter tiles
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.center,
+            children: List.generate(_swapLetters.length, (i) {
+              final letter = _swapLetters[i];
+              final isSelected = _selectedSwapIndex == i;
+              final isCorrectPosition = _answered && letter == answer[i];
+              // isWrongPosition used when _answered is true
+
+              Color bgColor;
+              Color borderColor;
+              Color textColor;
+
+              if (_answered) {
+                if (isCorrectPosition) {
+                  bgColor = const Color(0xFFD7FFB8);
+                  borderColor = AppColors.correct;
+                  textColor = AppColors.correct;
+                } else {
+                  bgColor = const Color(0xFFFFDFE0);
+                  borderColor = AppColors.error;
+                  textColor = AppColors.error;
+                }
+              } else if (isSelected) {
+                bgColor = const Color(0xFFDDF4FF);
+                borderColor = AppColors.secondary;
+                textColor = AppColors.secondary;
+              } else {
+                bgColor = Colors.white;
+                borderColor = Colors.grey.shade400;
+                textColor = AppColors.textPrimary;
+              }
+
+              return GestureDetector(
+                onTap: _answered ? null : () => _swapTap(i),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 56,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: borderColor,
+                      width: isSelected ? 3 : 2,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.secondary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      letter.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 24),
+          // Instruction text
+          if (!_answered)
+            Text(
+              _selectedSwapIndex != null
+                  ? 'Tap another letter to swap'
+                  : 'Tap a letter to select it',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -511,9 +709,11 @@ class _LessonScreenState extends State<LessonScreen>
   Widget _buildBottomSection() {
     final isSentenceBuilder =
         _currentItem.exerciseType == ExerciseType.build_sentence;
-    final canCheck = isSentenceBuilder
-        ? _arrangedWords.length == _currentItem.answer.length
-        : _selectedAnswer != null;
+    final canCheck = _currentItem.exerciseType == ExerciseType.spell_tiles
+        ? _answered  // Swap tiles auto-check on correct arrangement
+        : isSentenceBuilder
+            ? _arrangedWords.length == _currentItem.answer.length
+            : _selectedAnswer != null;
 
     if (!_answered && canCheck) {
       return Padding(

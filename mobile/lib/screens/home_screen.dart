@@ -6,6 +6,7 @@ import '../models/subject.dart';
 import '../models/demo_data.dart';
 import '../models/math_content.dart';
 import '../models/english_content.dart';
+import '../models/homework_content.dart';
 import '../theme/app_theme.dart';
 import 'lesson_screen.dart';
 import 'streak_screen.dart';
@@ -30,6 +31,7 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 children: [
+                  _buildHomeworkSection(context, state),
                   for (final unit in units) ...[
                     _buildUnitHeader(unit.title),
                     ...unit.skillIds.map((sid) {
@@ -220,6 +222,53 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // ─── Homework Section (separate from the curriculum path) ───
+  Widget _buildHomeworkSection(BuildContext context, AppState state) {
+    if (homeworkSkills.isEmpty) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.accent, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accent.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('📝', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 8),
+              const Text(
+                'Homework',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.accent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...homeworkUnits.expand((unit) => unit.skillIds.map((sid) {
+                final skill = findSkill(sid);
+                if (skill == null) return const SizedBox.shrink();
+                return _buildSkillNode(context, state, skill,
+                    activeColor: AppColors.accent);
+              })),
+        ],
+      ),
+    );
+  }
+
   Widget _buildUnitHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, top: 8),
@@ -234,7 +283,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSkillNode(BuildContext context, AppState state, Skill skill) {
+  Widget _buildSkillNode(BuildContext context, AppState state, Skill skill,
+      {Color? activeColor}) {
     final mastery = state.masteryForSkill(skill.id);
     final unlocked = state.isSkillUnlocked(skill);
     final isComplete = mastery >= 80;
@@ -245,9 +295,10 @@ class HomeScreen extends StatelessWidget {
     } else if (isComplete) {
       nodeColor = AppColors.goldCoin;
     } else if (mastery > 0) {
-      nodeColor = state.currentSubject == Subject.MATH
-          ? AppColors.mathGradient1
-          : AppColors.englishGradient1;
+      nodeColor = activeColor ??
+          (state.currentSubject == Subject.MATH
+              ? AppColors.mathGradient1
+              : AppColors.englishGradient1);
     } else {
       nodeColor = AppColors.primary;
     }

@@ -5,6 +5,7 @@ import '../models/skill.dart';
 import '../models/item.dart';
 import 'math_content.dart';
 import 'english_content.dart';
+import 'homework_content.dart';
 
 // ─── ENGLISH UNITS ───
 final demoEnglishUnits = [
@@ -237,9 +238,9 @@ final demoMathItems = [
 ];
 
 // ─── HELPERS ───
-final allDemoUnits = [...demoEnglishUnits, ...demoMathUnits, ...mathCambridgeUnits, ...englishCambridgeUnits];
-final allDemoSkills = [...demoEnglishSkills, ...demoMathSkills, ...mathCambridgeSkills, ...englishCambridgeSkills];
-final allDemoItems = [...demoEnglishItems, ...demoMathItems, ...mathCambridgeItems, ...englishCambridgeItems];
+final allDemoUnits = [...demoEnglishUnits, ...demoMathUnits, ...mathCambridgeUnits, ...englishCambridgeUnits, ...homeworkUnits];
+final allDemoSkills = [...demoEnglishSkills, ...demoMathSkills, ...mathCambridgeSkills, ...englishCambridgeSkills, ...homeworkSkills];
+final allDemoItems = [...demoEnglishItems, ...demoMathItems, ...mathCambridgeItems, ...englishCambridgeItems, ...homeworkItems];
 
 List<Item> itemsForSkill(String skillId) {
   return allDemoItems.where((i) => i.skillId == skillId).toList();

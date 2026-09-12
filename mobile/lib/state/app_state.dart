@@ -9,6 +9,7 @@ import '../models/item.dart';
 import '../models/demo_data.dart';
 import '../models/math_content.dart';
 import '../models/english_content.dart';
+import '../models/homework_content.dart';
 import '../models/skill.dart';
 import '../services/api_service.dart';
 import '../utils/sound_util.dart';
@@ -163,7 +164,9 @@ class AppState extends ChangeNotifier {
   Lesson composeDemoLesson(String skillId) {
     final items = itemsForSkill(skillId);
     items.shuffle();
-    final count = items.length > 7 ? 7 : items.length;
+    // Homework lessons include all assigned words; regular lessons cap at 7
+    final isHomework = homeworkSkills.any((s) => s.id == skillId);
+    final count = isHomework ? items.length : (items.length > 7 ? 7 : items.length);
     final selected = items.take(count).toList();
     return Lesson(
       id: 'lesson_${DateTime.now().millisecondsSinceEpoch}',

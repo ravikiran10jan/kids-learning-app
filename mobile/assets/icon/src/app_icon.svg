@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6FE01A"/>
+      <stop offset="1" stop-color="#3FA000"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.32" r="0.55">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD84D"/>
+      <stop offset="1" stop-color="#FFB800"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background (no transparency – required by App Store) -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+
+  <!-- Sparkles -->
+  <g fill="#FFFFFF" opacity="0.9">
+    <path d="M150 210 l14 38 38 14 -38 14 -14 38 -14 -38 -38 -14 38 -14z"/>
+    <path d="M880 150 l10 28 28 10 -28 10 -10 28 -10 -28 -28 -10 28 -10z"/>
+    <path d="M840 420 l8 22 22 8 -22 8 -8 22 -8 -22 -22 -8 22 -8z" opacity="0.7"/>
+  </g>
+
+  <!-- Sprout on head -->
+  <path d="M512 230 C 505 190, 520 150, 545 120" fill="none" stroke="#2E7D00" stroke-width="16" stroke-linecap="round"/>
+  <ellipse cx="575" cy="112" rx="52" ry="26" transform="rotate(-30 575 112)" fill="#A8F26A" stroke="#2E7D00" stroke-width="10"/>
+  <ellipse cx="505" cy="140" rx="44" ry="22" transform="rotate(35 505 140)" fill="#A8F26A" stroke="#2E7D00" stroke-width="10"/>
+
+  <!-- Character body -->
+  <circle cx="512" cy="450" r="240" fill="#B37F00"/>
+  <circle cx="512" cy="440" r="232" fill="url(#body)"/>
+  <!-- wings -->
+  <ellipse cx="292" cy="500" rx="58" ry="92" transform="rotate(25 292 500)" fill="#F0A800"/>
+  <ellipse cx="732" cy="500" rx="58" ry="92" transform="rotate(-25 732 500)" fill="#F0A800"/>
+  <!-- belly -->
+  <ellipse cx="512" cy="540" rx="140" ry="110" fill="#FFE98A"/>
+  <!-- cheeks -->
+  <circle cx="382" cy="478" r="30" fill="#FF8A80" opacity="0.75"/>
+  <circle cx="642" cy="478" r="30" fill="#FF8A80" opacity="0.75"/>
+  <!-- eyes -->
+  <circle cx="436" cy="400" r="66" fill="#FFFFFF"/>
+  <circle cx="588" cy="400" r="66" fill="#FFFFFF"/>
+  <circle cx="448" cy="410" r="34" fill="#3C3C3C"/>
+  <circle cx="600" cy="410" r="34" fill="#3C3C3C"/>
+  <circle cx="462" cy="396" r="12" fill="#FFFFFF"/>
+  <circle cx="614" cy="396" r="12" fill="#FFFFFF"/>
+  <!-- beak -->
+  <path d="M482 452 L542 452 L512 490 Z" fill="#FF9600"/>
+  <!-- smile -->
+  <path d="M468 520 Q512 556 556 520" fill="none" stroke="#B37F00" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Blocks (character peeks over them) -->
+  <!-- Orange ABC block -->
+  <g transform="rotate(-5 340 760)">
+    <rect x="190" y="620" width="300" height="300" rx="52" fill="#C26A00"/>
+    <rect x="190" y="600" width="300" height="300" rx="52" fill="#FF9600"/>
+    <rect x="216" y="626" width="248" height="248" rx="36" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="12"/>
+    <text x="340" y="820" text-anchor="middle" font-family="Arial Rounded MT Bold, Helvetica Neue, Arial, sans-serif" font-weight="900" font-size="200" fill="#FFFFFF">A</text>
+  </g>
+  <!-- Blue number block -->
+  <g transform="rotate(5 684 760)">
+    <rect x="534" y="620" width="300" height="300" rx="52" fill="#0B7BC2"/>
+    <rect x="534" y="600" width="300" height="300" rx="52" fill="#1CB0F6"/>
+    <rect x="560" y="626" width="248" height="248" rx="36" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="12"/>
+    <text x="684" y="820" text-anchor="middle" font-family="Arial Rounded MT Bold, Helvetica Neue, Arial, sans-serif" font-weight="900" font-size="200" fill="#FFFFFF">1</text>
+  </g>
+</svg>

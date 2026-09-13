@@ -42,3 +42,12 @@ mobile/.ios/Flutter/ephemeral/
 # Firebase credentials
 *serviceAccount*.json
 !*.example.json
+
+# Flutter iOS generated files
+mobile/ios/Flutter/ephemeral/
+mobile/ios/Flutter/flutter_export_environment.sh
+mobile/ios/Flutter/.last_build_id
+mobile/ios/.generated/
+mobile/ios/Runner/GeneratedPluginRegistrant.*
+mobile/ios/ExportOptions.plist
+**/xcuserdata/

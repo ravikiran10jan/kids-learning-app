@@ -17,9 +17,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    final units = state.currentSubject == Subject.MATH
-        ? [...mathCambridgeUnits, ...demoMathUnits]
-        : [...englishCambridgeUnits, ...demoEnglishUnits];
+    final isHomework = state.currentSection == HomeSection.homework;
+    final units = switch (state.currentSection) {
+      HomeSection.math => [...mathCambridgeUnits, ...demoMathUnits],
+      HomeSection.english => [...englishCambridgeUnits, ...demoEnglishUnits],
+      HomeSection.homework => homeworkUnits,
+    };
 
     return Scaffold(
       body: SafeArea(
@@ -31,13 +34,13 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 children: [
-                  _buildHomeworkSection(context, state),
                   for (final unit in units) ...[
                     _buildUnitHeader(unit.title),
                     ...unit.skillIds.map((sid) {
                       final skill = findSkill(sid);
                       if (skill == null) return const SizedBox.shrink();
-                      return _buildSkillNode(context, state, skill);
+                      return _buildSkillNode(context, state, skill,
+                          activeColor: isHomework ? AppColors.accent : null);
                     }),
                     const SizedBox(height: 24),
                   ],
@@ -171,17 +174,25 @@ class HomeScreen extends StatelessWidget {
           _subjectChip(
             context,
             label: '🔢 Math',
-            isActive: state.currentSubject == Subject.MATH,
+            isActive: state.currentSection == HomeSection.math,
             activeColor: AppColors.mathGradient1,
-            onTap: () => state.setSubject(Subject.MATH),
+            onTap: () => state.setSection(HomeSection.math),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           _subjectChip(
             context,
             label: '📖 English',
-            isActive: state.currentSubject == Subject.ENGLISH,
+            isActive: state.currentSection == HomeSection.english,
             activeColor: AppColors.englishGradient1,
-            onTap: () => state.setSubject(Subject.ENGLISH),
+            onTap: () => state.setSection(HomeSection.english),
+          ),
+          const SizedBox(width: 10),
+          _subjectChip(
+            context,
+            label: '📝 Homework',
+            isActive: state.currentSection == HomeSection.homework,
+            activeColor: AppColors.accent,
+            onTap: () => state.setSection(HomeSection.homework),
           ),
         ],
       ),
@@ -198,7 +209,7 @@ class HomeScreen extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
           decoration: BoxDecoration(
             color: isActive ? activeColor : Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -208,63 +219,20 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: isActive ? Colors.white : AppColors.textPrimary,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: isActive ? Colors.white : AppColors.textPrimary,
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  // ─── Homework Section (separate from the curriculum path) ───
-  Widget _buildHomeworkSection(BuildContext context, AppState state) {
-    if (homeworkSkills.isEmpty) return const SizedBox.shrink();
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.accent, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accent.withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text('📝', style: TextStyle(fontSize: 22)),
-              const SizedBox(width: 8),
-              const Text(
-                'Homework',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.accent,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ...homeworkUnits.expand((unit) => unit.skillIds.map((sid) {
-                final skill = findSkill(sid);
-                if (skill == null) return const SizedBox.shrink();
-                return _buildSkillNode(context, state, skill,
-                    activeColor: AppColors.accent);
-              })),
-        ],
       ),
     );
   }

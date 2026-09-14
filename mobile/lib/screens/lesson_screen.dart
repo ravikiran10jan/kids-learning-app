@@ -39,10 +39,16 @@ class _LessonScreenState extends State<LessonScreen>
   List<String> _arrangedWords = [];
   List<String> _availableWords = [];
 
-  // Swap tiles state (spelling exercise)
-  List<String> _swapLetters = [];
-  int? _selectedSwapIndex;
-  String _swapWord = '';
+  // Build-the-word state (spelling exercise)
+  // Letter bank = answer letters + distractors, shuffled. Tapping the correct
+  // next letter pops it and moves it into the next slot; a wrong letter shakes.
+  List<String> _bankLetters = [];
+  List<bool> _bankUsed = [];
+  List<String> _placedLetters = [];
+  int? _poppingBankIndex;
+  int? _shakingBankIndex;
+  int _shakeTick = 0; // bumps so a repeated wrong tap replays the shake
+  String _spellWord = '';
 
   // Cached shuffled options (prevents re-shuffle on rebuild)
   List<String> _cachedOptions = [];
@@ -65,7 +71,7 @@ class _LessonScreenState extends State<LessonScreen>
     );
     _updateProgress();
     _initSentenceBuilder();
-    _initSwapTiles();
+    _initSpellTiles();
   }
 
   void _initSentenceBuilder() {
@@ -76,54 +82,60 @@ class _LessonScreenState extends State<LessonScreen>
     }
   }
 
-  void _initSwapTiles() {
+  void _initSpellTiles() {
     if (_currentItem.exerciseType == ExerciseType.spell_tiles) {
       final answer = List<String>.from(_currentItem.answer);
-      _swapWord = answer.join('');
-      _swapLetters = List<String>.from(answer);
-      // Shuffle until not in correct order
-      final rng = Random(_seedRandom(_currentItem.id + _currentIndex.toString()));
-      do {
-        _swapLetters.shuffle(rng);
-      } while (_lettersMatch(answer, _swapLetters));
-      _selectedSwapIndex = null;
+      _spellWord = answer.join('');
+      _bankLetters = [...answer, ..._currentItem.distractors]
+        ..shuffle(Random(_seedRandom(_currentItem.id + _currentIndex.toString())));
+      _bankUsed = List<bool>.filled(_bankLetters.length, false);
+      _placedLetters = [];
+      _poppingBankIndex = null;
+      _shakingBankIndex = null;
       // Auto-play word via TTS
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        TtsUtil.speakWord(_swapWord);
+        TtsUtil.speakWord(_spellWord);
       });
     }
   }
 
-  bool _lettersMatch(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
+  bool get _spellComplete =>
+      _placedLetters.length == _currentItem.answer.length;
 
-  void _swapTap(int index) {
-    if (_answered) return;
+  void _spellTap(int index) {
+    if (_answered || _bankUsed[index] || _poppingBankIndex != null) return;
+    final expected = _currentItem.answer[_placedLetters.length];
+    final letter = _bankLetters[index];
+    _attempts++;
+
+    if (letter != expected) {
+      // Wrong letter: gentle sound, shake, and it stays in the bank
+      SoundUtil.playWrong();
+      setState(() {
+        _firstTry = false;
+        _shakingBankIndex = index;
+        _shakeTick++;
+      });
+      return;
+    }
+
+    // Correct letter: pop the tile, then move it into the next slot
     setState(() {
-      if (_selectedSwapIndex == null) {
-        _selectedSwapIndex = index;
-      } else if (_selectedSwapIndex == index) {
-        _selectedSwapIndex = null; // Deselect
-      } else {
-        // Swap
-        final temp = _swapLetters[_selectedSwapIndex!];
-        _swapLetters[_selectedSwapIndex!] = _swapLetters[index];
-        _swapLetters[index] = temp;
-        _selectedSwapIndex = null;
-        _attempts++;
-        // Auto-check if correct
-        final answer = _currentItem.answer;
-        if (_lettersMatch(answer, _swapLetters)) {
+      _shakingBankIndex = null;
+      _poppingBankIndex = index;
+    });
+    Future.delayed(const Duration(milliseconds: 180), () {
+      if (!mounted) return;
+      setState(() {
+        _poppingBankIndex = null;
+        _bankUsed[index] = true;
+        _placedLetters.add(letter);
+        if (_spellComplete) {
           SoundUtil.playCorrect();
           _answered = true;
           _correct = true;
         }
-      }
+      });
     });
   }
 
@@ -175,7 +187,7 @@ class _LessonScreenState extends State<LessonScreen>
   }
 
   void _checkAnswer() {
-    // Swap tiles auto-checks on correct arrangement
+    // Spell tiles auto-check once the last slot is filled
     if (_currentItem.exerciseType == ExerciseType.spell_tiles) return;
     bool isCorrect;
     if (_currentItem.exerciseType == ExerciseType.build_sentence) {
@@ -229,15 +241,18 @@ class _LessonScreenState extends State<LessonScreen>
       _firstTry = true;
       _arrangedWords = [];
       _availableWords = [];
-      _swapLetters = [];
-      _selectedSwapIndex = null;
-      _swapWord = '';
+      _bankLetters = [];
+      _bankUsed = [];
+      _placedLetters = [];
+      _poppingBankIndex = null;
+      _shakingBankIndex = null;
+      _spellWord = '';
       _cachedOptions = [];
       _cachedOptionKey = '';
     });
     _updateProgress();
     _initSentenceBuilder();
-    _initSwapTiles();
+    _initSpellTiles();
   }
 
   void _finishLesson() {
@@ -267,7 +282,7 @@ class _LessonScreenState extends State<LessonScreen>
   Widget build(BuildContext context) {
     final isSentenceBuilder =
         _currentItem.exerciseType == ExerciseType.build_sentence;
-    final isSwapTiles =
+    final isSpellTiles =
         _currentItem.exerciseType == ExerciseType.spell_tiles;
 
     return Scaffold(
@@ -298,8 +313,8 @@ class _LessonScreenState extends State<LessonScreen>
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: isSwapTiles
-                    ? _buildSwapTiles(context)
+                child: isSpellTiles
+                    ? _buildSpellTiles(context)
                     : isSentenceBuilder
                         ? _buildSentenceBuilder(context)
                         : _buildStandardOptions(context),
@@ -498,8 +513,8 @@ class _LessonScreenState extends State<LessonScreen>
   }
 
 
-  // ─── Swap Tiles (Spelling) UI ───
-  Widget _buildSwapTiles(BuildContext context) {
+  // ─── Build-the-Word (Spelling) UI ───
+  Widget _buildSpellTiles(BuildContext context) {
     final answer = _currentItem.answer;
     return SingleChildScrollView(
       child: Column(
@@ -518,7 +533,7 @@ class _LessonScreenState extends State<LessonScreen>
           const SizedBox(height: 16),
           // Listen again button
           OutlinedButton.icon(
-            onPressed: () => TtsUtil.speakWord(_swapWord),
+            onPressed: () => TtsUtil.speakWord(_spellWord),
             icon: const Icon(Icons.volume_up, size: 22),
             label: const Text('Listen again'),
             style: OutlinedButton.styleFrom(
@@ -531,81 +546,33 @@ class _LessonScreenState extends State<LessonScreen>
             ),
           ),
           const SizedBox(height: 32),
-          // Letter tiles
+          // Word slots — fill up left to right as letters are chosen
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: List.generate(answer.length, (i) {
+              final filled = i < _placedLetters.length;
+              return _buildSlot(
+                letter: filled ? _placedLetters[i] : null,
+                isNext: !filled && i == _placedLetters.length && !_answered,
+                complete: _answered && _correct,
+              );
+            }),
+          ),
+          const SizedBox(height: 36),
+          // Letter bank
           Wrap(
             spacing: 12,
             runSpacing: 12,
             alignment: WrapAlignment.center,
-            children: List.generate(_swapLetters.length, (i) {
-              final letter = _swapLetters[i];
-              final isSelected = _selectedSwapIndex == i;
-              final isCorrectPosition = _answered && letter == answer[i];
-              // isWrongPosition used when _answered is true
-
-              Color bgColor;
-              Color borderColor;
-              Color textColor;
-
-              if (_answered) {
-                if (isCorrectPosition) {
-                  bgColor = const Color(0xFFD7FFB8);
-                  borderColor = AppColors.correct;
-                  textColor = AppColors.correct;
-                } else {
-                  bgColor = const Color(0xFFFFDFE0);
-                  borderColor = AppColors.error;
-                  textColor = AppColors.error;
-                }
-              } else if (isSelected) {
-                bgColor = const Color(0xFFDDF4FF);
-                borderColor = AppColors.secondary;
-                textColor = AppColors.secondary;
-              } else {
-                bgColor = Colors.white;
-                borderColor = Colors.grey.shade400;
-                textColor = AppColors.textPrimary;
-              }
-
-              return GestureDetector(
-                onTap: _answered ? null : () => _swapTap(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 56,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: borderColor,
-                      width: isSelected ? 3 : 2,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.secondary.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                        : [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      letter.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
-                ),
+            children: List.generate(_bankLetters.length, (i) {
+              return _buildBankTile(
+                index: i,
+                letter: _bankLetters[i],
+                used: _bankUsed[i],
+                popping: _poppingBankIndex == i,
+                shaking: _shakingBankIndex == i,
               );
             }),
           ),
@@ -613,9 +580,9 @@ class _LessonScreenState extends State<LessonScreen>
           // Instruction text
           if (!_answered)
             Text(
-              _selectedSwapIndex != null
-                  ? 'Tap another letter to swap'
-                  : 'Tap a letter to select it',
+              _placedLetters.isEmpty
+                  ? 'Tap the letters in order to spell the word'
+                  : 'Keep going! ${answer.length - _placedLetters.length} to go',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey.shade500,
@@ -624,6 +591,154 @@ class _LessonScreenState extends State<LessonScreen>
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSlot({
+    required String? letter,
+    required bool isNext,
+    required bool complete,
+  }) {
+    final filled = letter != null;
+    final Color bgColor;
+    final Color borderColor;
+    final Color textColor;
+    if (complete) {
+      bgColor = const Color(0xFFD7FFB8);
+      borderColor = AppColors.correct;
+      textColor = AppColors.correct;
+    } else if (filled) {
+      bgColor = const Color(0xFFDDF4FF);
+      borderColor = AppColors.secondary;
+      textColor = AppColors.secondary;
+    } else {
+      bgColor = Colors.grey.shade50;
+      borderColor = isNext ? AppColors.secondary : Colors.grey.shade300;
+      textColor = AppColors.textPrimary;
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      width: 48,
+      height: 58,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor, width: isNext ? 3 : 2),
+        boxShadow: complete
+            ? [
+                BoxShadow(
+                  color: AppColors.correct.withOpacity(0.35),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
+      ),
+      child: Center(
+        child: filled
+            // Pop-in as the letter lands in its slot
+            ? TweenAnimationBuilder<double>(
+                key: ValueKey('slot-$letter-${_placedLetters.length}'),
+                tween: Tween(begin: 0.4, end: 1.0),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutBack,
+                builder: (_, scale, child) =>
+                    Transform.scale(scale: scale, child: child),
+                child: Text(
+                  letter.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: textColor,
+                  ),
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildBankTile({
+    required int index,
+    required String letter,
+    required bool used,
+    required bool popping,
+    required bool shaking,
+  }) {
+    final Color borderColor = shaking
+        ? AppColors.error
+        : popping
+            ? AppColors.correct
+            : Colors.grey.shade400;
+    final Color bgColor = shaking
+        ? const Color(0xFFFFDFE0)
+        : popping
+            ? const Color(0xFFD7FFB8)
+            : Colors.white;
+
+    Widget tile = AnimatedScale(
+      scale: popping ? 1.3 : 1.0,
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOutBack,
+      child: AnimatedOpacity(
+        opacity: used ? 0.25 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 56,
+          height: 64,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: borderColor, width: 2),
+            boxShadow: used
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+          ),
+          child: Center(
+            child: Text(
+              letter.toUpperCase(),
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (shaking) {
+      // Side-to-side wobble for a wrong letter; keyed on _shakeTick so a
+      // second wrong tap on the same tile replays it.
+      tile = TweenAnimationBuilder<double>(
+        key: ValueKey('shake-$index-$_shakeTick'),
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 350),
+        onEnd: () {
+          if (mounted && _shakingBankIndex == index) {
+            setState(() => _shakingBankIndex = null);
+          }
+        },
+        builder: (_, t, child) => Transform.translate(
+          offset: Offset(sin(t * pi * 4) * 6 * (1 - t), 0),
+          child: child,
+        ),
+        child: tile,
+      );
+    }
+
+    return GestureDetector(
+      onTap: (used || _answered) ? null : () => _spellTap(index),
+      child: tile,
     );
   }
 
@@ -710,7 +825,7 @@ class _LessonScreenState extends State<LessonScreen>
     final isSentenceBuilder =
         _currentItem.exerciseType == ExerciseType.build_sentence;
     final canCheck = _currentItem.exerciseType == ExerciseType.spell_tiles
-        ? _answered  // Swap tiles auto-check on correct arrangement
+        ? _answered  // Spell tiles auto-check once the word is complete
         : isSentenceBuilder
             ? _arrangedWords.length == _currentItem.answer.length
             : _selectedAnswer != null;

@@ -14,10 +14,22 @@ import '../models/skill.dart';
 import '../services/api_service.dart';
 import '../utils/sound_util.dart';
 
+/// Top-level sections shown as tabs on the Home screen.
+/// Homework sits alongside the two curriculum subjects.
+enum HomeSection { math, english, homework }
+
+HomeSection parseHomeSection(String? s) {
+  if (s == null) return HomeSection.math;
+  return HomeSection.values.firstWhere(
+    (e) => e.name == s,
+    orElse: () => HomeSection.math,
+  );
+}
+
 class AppState extends ChangeNotifier {
   final ApiService _api = ApiService();
   ChildProfile _profile = ChildProfile(id: 'default');
-  Subject _currentSubject = Subject.MATH;
+  HomeSection _currentSection = HomeSection.math;
   bool _loaded = false;
   Map<String, int> _skillMastery = {};
   int _currentStreak = 0;
@@ -28,7 +40,12 @@ class AppState extends ChangeNotifier {
   bool _streakJustIncreased = false; // flag for UI celebration
 
   ChildProfile get profile => _profile;
-  Subject get currentSubject => _currentSubject;
+  HomeSection get currentSection => _currentSection;
+
+  /// Curriculum subject backing the current section.
+  /// Homework is English-based, so it maps to ENGLISH.
+  Subject get currentSubject =>
+      _currentSection == HomeSection.math ? Subject.MATH : Subject.ENGLISH;
   bool get loaded => _loaded;
   Map<String, int> get skillMastery => _skillMastery;
   int get currentStreak => _currentStreak;
@@ -68,7 +85,7 @@ class AppState extends ChangeNotifier {
         totalLessonsCompleted: _totalLessonsCompleted,
         lessonsThisStreak: _lessonsThisStreak,
       );
-      _currentSubject = parseSubject(prefs.getString('last_subject'));
+      _currentSection = parseHomeSection(prefs.getString('last_section'));
       _skillMastery = Map.from(_profile.skillMastery);
     }
   }
@@ -123,24 +140,28 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSubject(Subject s) {
-    _currentSubject = s;
-    _saveLastSubject();
+  void setSection(HomeSection section) {
+    _currentSection = section;
+    _saveLastSection();
     notifyListeners();
   }
 
-  Future<void> _saveLastSubject() async {
+  void setSubject(Subject s) {
+    setSection(s == Subject.MATH ? HomeSection.math : HomeSection.english);
+  }
+
+  Future<void> _saveLastSection() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('last_subject', _currentSubject.name);
+    await prefs.setString('last_section', _currentSection.name);
   }
 
   /// Get all skills for current subject (original + Cambridge)
   List<Skill> get currentSkills {
     final original = allDemoSkills
-        .where((s) => s.subject == _currentSubject)
+        .where((s) => s.subject == currentSubject)
         .toList();
 
-    final cambridge = _currentSubject == Subject.MATH
+    final cambridge = currentSubject == Subject.MATH
         ? mathCambridgeSkills
         : englishCambridgeSkills;
 

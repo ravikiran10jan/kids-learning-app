@@ -14,6 +14,7 @@ import 'package:kids_learning_app/models/exercise_type.dart';
 import 'package:kids_learning_app/models/demo_data.dart';
 import 'package:kids_learning_app/models/math_content.dart';
 import 'package:kids_learning_app/models/english_content.dart';
+import 'package:kids_learning_app/models/homework_content.dart';
 import 'package:kids_learning_app/models/skill.dart';
 import 'package:kids_learning_app/models/unit.dart';
 import 'package:kids_learning_app/screens/welcome_screen.dart';
@@ -1080,6 +1081,124 @@ void main() {
 
       // Placeholder should be back
       expect(find.text('Tap words below to build your sentence'), findsOneWidget);
+    });
+  });
+
+  // ─── Epic 12: Homework Tab ───
+  group('Epic 12: Homework Tab', () {
+    testWidgets('12.1 Home shows Math, English and Homework tabs', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'profile_name': 'Test',
+        'profile_id': 'test',
+      });
+      await tester.pumpWidget(const KidsLearnApp());
+      await tester.pumpAndSettle();
+
+      expect(find.text('🔢 Math'), findsOneWidget);
+      expect(find.text('📖 English'), findsOneWidget);
+      expect(find.text('📝 Homework'), findsOneWidget);
+    });
+
+    testWidgets('12.2 Tapping Homework shows only homework skills', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'profile_name': 'Test',
+        'profile_id': 'test',
+      });
+      await tester.pumpWidget(const KidsLearnApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('📝 Homework'));
+      await tester.pumpAndSettle();
+
+      final state = tester.element(find.byType(HomeScreen)).read<AppState>();
+      expect(state.currentSection, HomeSection.homework);
+      expect(find.text('Spelling Practice'), findsOneWidget);
+      expect(find.text('Counting & Numbers (LKG)'), findsNothing);
+    });
+
+    testWidgets('12.3 Selected section is remembered', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'profile_name': 'Test',
+        'profile_id': 'test',
+        'last_section': 'homework',
+      });
+      await tester.pumpWidget(const KidsLearnApp());
+      await tester.pumpAndSettle();
+
+      final state = tester.element(find.byType(HomeScreen)).read<AppState>();
+      expect(state.currentSection, HomeSection.homework);
+      expect(find.text('Spelling Practice'), findsOneWidget);
+    });
+  });
+
+  // ─── Epic 13: Build-the-Word Spelling ───
+  group('Epic 13: Build-the-Word Spelling', () {
+    Item spellItem() => homeworkItems.first; // "modern"
+
+    Future<void> pumpSpellLesson(WidgetTester tester) async {
+      final lesson = Lesson(
+        id: 'test_lesson',
+        skillId: spellItem().skillId,
+        exercises: [spellItem()],
+      );
+      await tester.pumpWidget(
+        MaterialApp(home: LessonScreen(lesson: lesson, skillTitle: 'Spelling')),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    /// Tap the bank tile showing [letter]. Slots render above the bank, so
+    /// when a letter is both placed and in the bank, the last match is the bank.
+    Future<void> tapLetter(WidgetTester tester, String letter) async {
+      await tester.tap(find.text(letter.toUpperCase()).last, warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('13.1 Shows empty slots and a letter bank', (tester) async {
+      await pumpSpellLesson(tester);
+      final item = spellItem();
+
+      expect(find.textContaining('Spell this'), findsOneWidget);
+      expect(find.text('Tap the letters in order to spell the word'), findsOneWidget);
+      for (final l in [...item.answer, ...item.distractors]) {
+        expect(find.text(l.toUpperCase()), findsWidgets,
+            reason: 'Bank should contain letter "$l"');
+      }
+      expect(find.text('CHECK'), findsNothing);
+      expect(find.text('Great job!'), findsNothing);
+    });
+
+    testWidgets('13.2 Tapping the correct next letter adds it to the word',
+        (tester) async {
+      await pumpSpellLesson(tester);
+      final item = spellItem();
+
+      await tapLetter(tester, item.answer.first);
+      expect(find.text('Keep going! ${item.answer.length - 1} to go'), findsOneWidget);
+      // The letter now appears twice: in its slot and (faded) in the bank
+      expect(find.text(item.answer.first.toUpperCase()), findsNWidgets(2));
+    });
+
+    testWidgets('13.3 Wrong letter is not placed', (tester) async {
+      await pumpSpellLesson(tester);
+      final item = spellItem();
+
+      await tapLetter(tester, item.distractors.first);
+      expect(find.text('Tap the letters in order to spell the word'), findsOneWidget,
+          reason: 'No letter should have been placed');
+      expect(find.text('Great job!'), findsNothing);
+    });
+
+    testWidgets('13.4 Spelling the whole word marks it correct', (tester) async {
+      await pumpSpellLesson(tester);
+      final item = spellItem();
+
+      for (final l in item.answer) {
+        await tapLetter(tester, l);
+      }
+      expect(find.text('Great job!'), findsOneWidget);
+      expect(find.text('FINISH'), findsOneWidget);
     });
   });
 }

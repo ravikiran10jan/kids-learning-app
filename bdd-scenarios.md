@@ -65,6 +65,16 @@ When the child taps the "Practice" button
 Then the app starts a lesson for the current active skill on the path
 ```
 
+### Scenario 1.7: Homework is a section alongside Math and English
+```gherkin
+Given the child is on the Home screen
+Then three section tabs are shown: Math, English and Homework
+When the child taps the Homework tab
+Then only the homework skills are listed (no curriculum path)
+And the Homework tab is highlighted in the accent colour
+And the selected section is remembered the next time the app opens
+```
+
 ---
 
 ## Epic 2: Skill Path Navigation
@@ -346,8 +356,11 @@ When the exercise loads
 Then audio plays stating the word to spell (e.g. "Spell ship")
 And empty letter slots are shown
 And a bank of letter tiles is displayed (answer letters + distractors)
-When the child taps letters in the correct order to fill the slots
-Then the correct-answer feedback is triggered
+When the child taps the correct next letter
+Then the tile pops and the letter is added to the next empty slot
+And the tile is greyed out in the bank
+When the last slot is filled
+Then all slots turn green and the correct-answer feedback is triggered
 ```
 
 ### Scenario 6.5: spell_tiles — wrong letter placement

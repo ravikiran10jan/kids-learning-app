@@ -1157,6 +1157,65 @@ void main() {
             reason: 'Item ${item.id}: distractors should not repeat answer letters');
       }
     });
+
+    test('12.5 Spelling Practice 3, 4 and 5 contain the assigned words', () {
+      List<String> wordsFor(String skillId) => homeworkItems
+          .where((i) => i.skillId == skillId)
+          .map((i) => i.answer.join())
+          .toList();
+
+      expect(wordsFor('hw3'), [
+        'space', 'bright', 'world', 'plural', 'happy',
+        'around', 'rough', 'shape', 'noise', 'family',
+      ]);
+      expect(wordsFor('hw4'), [
+        'missing', 'singular', 'silent', 'sound', 'design',
+        'plural', 'house', 'vowel', 'pattern', 'family',
+      ]);
+      expect(wordsFor('hw5'), [
+        'park', 'thing', 'place', 'person', 'animal',
+        'office', 'school', 'famous', 'hospital', 'country',
+      ]);
+
+      // Every homework item is reachable from exactly one skill, ids are unique
+      final ids = homeworkItems.map((i) => i.id).toList();
+      expect(ids.toSet().length, ids.length, reason: 'duplicate item ids');
+      for (final skill in homeworkSkills) {
+        expect(skill.itemIds.length, 10, reason: '${skill.id} should have 10 words');
+        for (final id in skill.itemIds) {
+          expect(homeworkItems.any((i) => i.id == id && i.skillId == skill.id), isTrue,
+              reason: '${skill.id} references $id');
+        }
+      }
+      for (final item in homeworkItems) {
+        expect(item.distractors.toSet().intersection(item.answer.toSet()), isEmpty,
+            reason: 'Item ${item.id}: distractors should not repeat answer letters');
+      }
+    });
+
+    testWidgets('12.6 Leave-lesson dialog offers Keep going and Leave', (tester) async {
+      final lesson = Lesson(
+        id: 'test_lesson',
+        skillId: 'hw1',
+        exercises: [homeworkItems.first],
+      );
+      await tester.pumpWidget(
+        MaterialApp(home: LessonScreen(lesson: lesson, skillTitle: 'Spelling')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+      expect(find.text('Leaving so soon?'), findsOneWidget);
+      expect(find.text('KEEP GOING'), findsOneWidget);
+      expect(find.text('Leave lesson'), findsOneWidget);
+
+      // Keep going closes the dialog and stays on the lesson
+      await tester.tap(find.text('KEEP GOING'));
+      await tester.pumpAndSettle();
+      expect(find.text('Leaving so soon?'), findsNothing);
+      expect(find.byType(LessonScreen), findsOneWidget);
+    });
   });
 
   // ─── Epic 13: Build-the-Word Spelling ───

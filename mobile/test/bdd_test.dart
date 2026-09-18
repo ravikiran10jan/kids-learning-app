@@ -1129,6 +1129,34 @@ void main() {
       expect(state.currentSection, HomeSection.homework);
       expect(find.text('Spelling Practice'), findsOneWidget);
     });
+
+    testWidgets('12.4 Homework lists a second spelling task with the assigned words',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'profile_name': 'Test',
+        'profile_id': 'test',
+        'last_section': 'homework',
+      });
+      await tester.pumpWidget(const KidsLearnApp());
+      await tester.pumpAndSettle();
+      expect(find.text('Spelling Practice 2'), findsOneWidget);
+
+      final hw2 = homeworkSkills.firstWhere((s) => s.id == 'hw2');
+      final words = homeworkItems
+          .where((i) => i.skillId == 'hw2')
+          .map((i) => i.answer.join())
+          .toList();
+      expect(hw2.itemIds.length, 10);
+      expect(words, [
+        'adapt', 'design', 'weather', 'climate', 'protect',
+        'people', 'change', 'because', 'describe', 'favourite',
+      ]);
+      for (final item in homeworkItems.where((i) => i.skillId == 'hw2')) {
+        expect(item.exerciseType, ExerciseType.spell_tiles);
+        expect(item.distractors.toSet().intersection(item.answer.toSet()), isEmpty,
+            reason: 'Item ${item.id}: distractors should not repeat answer letters');
+      }
+    });
   });
 
   // ─── Epic 13: Build-the-Word Spelling ───

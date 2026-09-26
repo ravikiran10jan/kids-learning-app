@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../state/app_state.dart';
 import '../utils/sound_util.dart';
 import 'streak_screen.dart';
+import 'shop_screen.dart';
 
 class ResultScreen extends StatefulWidget {
   final LessonResult result;
@@ -60,7 +61,13 @@ class _ResultScreenState extends State<ResultScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        // Scrollable so the extra shop goal never overflows on short screens
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -103,6 +110,10 @@ class _ResultScreenState extends State<ResultScreen> {
                       '${result.firstTryCorrectCount}/${result.totalExercises}'),
                 ],
               ),
+
+              const SizedBox(height: 20),
+              // Shop goal — turns coins into something to aim for
+              _buildShopGoal(context),
 
               const Spacer(),
 
@@ -147,6 +158,67 @@ class _ResultScreenState extends State<ResultScreen> {
               ],
             ],
           ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Nudge towards the next unlockable toy so coins feel like progress.
+  Widget _buildShopGoal(BuildContext context) {
+    final state = context.watch<AppState>();
+    final goal = state.nextGoal;
+    if (goal == null) return const SizedBox.shrink();
+
+    final affordable = state.profile.coins >= goal.price;
+    final short = goal.price - state.profile.coins;
+
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ShopScreen()),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: affordable
+              ? AppColors.primary.withOpacity(0.10)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: affordable ? AppColors.primary : Colors.grey.shade300,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(goal.emoji, style: const TextStyle(fontSize: 26)),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                affordable
+                    ? 'You can buy ${goal.name} now!'
+                    : '$short more coins for ${goal.name}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: affordable
+                      ? AppColors.primary
+                      : AppColors.textSecondary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(Icons.chevron_right,
+                size: 20,
+                color: affordable
+                    ? AppColors.primary
+                    : AppColors.textSecondary),
+          ],
         ),
       ),
     );

@@ -11,6 +11,7 @@ import '../models/math_content.dart';
 import '../models/english_content.dart';
 import '../models/homework_content.dart';
 import '../models/skill.dart';
+import '../models/collectible.dart';
 import '../services/api_service.dart';
 import '../utils/sound_util.dart';
 
@@ -54,6 +55,63 @@ class AppState extends ChangeNotifier {
   int get lessonsThisStreak => _lessonsThisStreak;
   bool get streakJustIncreased => _streakJustIncreased;
 
+  // ─── Collection (shop rewards) ───
+  /// Ids of every collectible the child has bought, oldest first.
+  List<String> get ownedCollectibles => _profile.petItems;
+
+  /// The collectible shown as the child's buddy on the profile and home header.
+  String? get buddyId =>
+      _profile.equippedPetItems.isEmpty ? null : _profile.equippedPetItems.first;
+
+  Collectible? get buddy => buddyId == null ? null : findCollectible(buddyId!);
+
+  bool owns(String collectibleId) => ownedCollectibles.contains(collectibleId);
+
+  bool canAfford(Collectible item) => _profile.coins >= item.price;
+
+  /// Cheapest item the child cannot buy yet — the "keep practising" goal
+  /// shown on the profile and shop screens. Null once everything is owned.
+  Collectible? get nextGoal {
+    Collectible? best;
+    for (final c in shopCatalogue) {
+      if (owns(c.id)) continue;
+      if (best == null || c.price < best.price) best = c;
+    }
+    return best;
+  }
+
+  /// Spend coins on [item] and add it to the collection. Returns false (and
+  /// changes nothing) if it is already owned or the child cannot afford it.
+  Future<bool> buyCollectible(Collectible item) async {
+    if (owns(item.id) || !canAfford(item)) return false;
+
+    _profile.coins -= item.price;
+    _profile.petItems = [..._profile.petItems, item.id];
+    // First purchase automatically becomes the buddy.
+    if (_profile.equippedPetItems.isEmpty) {
+      _profile.equippedPetItems = [item.id];
+    }
+    await _saveCollection();
+    await SoundUtil.playCoin();
+    notifyListeners();
+    return true;
+  }
+
+  /// Show [collectibleId] as the buddy. Ignored unless it is owned.
+  Future<void> setBuddy(String collectibleId) async {
+    if (!owns(collectibleId)) return;
+    _profile.equippedPetItems = [collectibleId];
+    await _saveCollection();
+    notifyListeners();
+  }
+
+  Future<void> _saveCollection() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('coins', _profile.coins);
+    await prefs.setStringList('owned_collectibles', _profile.petItems);
+    await prefs.setStringList('equipped_collectibles', _profile.equippedPetItems);
+  }
+
   Future<void> init() async {
     await _api.checkConnection();
     await _loadProfile();
@@ -84,6 +142,9 @@ class AppState extends ChangeNotifier {
         lastPracticeDate: _lastPracticeDate,
         totalLessonsCompleted: _totalLessonsCompleted,
         lessonsThisStreak: _lessonsThisStreak,
+        petItems: prefs.getStringList('owned_collectibles') ?? const [],
+        equippedPetItems:
+            prefs.getStringList('equipped_collectibles') ?? const [],
       );
       _currentSection = parseHomeSection(prefs.getString('last_section'));
       _skillMastery = Map.from(_profile.skillMastery);
@@ -110,6 +171,8 @@ class AppState extends ChangeNotifier {
         coins: _profile.coins,
         dailyLessonsCompleted: 0,
         skillMastery: _profile.skillMastery,
+        petItems: _profile.petItems,
+        equippedPetItems: _profile.equippedPetItems,
       );
     }
   }

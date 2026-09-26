@@ -7,9 +7,12 @@ import '../models/demo_data.dart';
 import '../models/math_content.dart';
 import '../models/english_content.dart';
 import '../models/homework_content.dart';
+import '../models/collectible.dart';
 import '../theme/app_theme.dart';
 import 'lesson_screen.dart';
 import 'streak_screen.dart';
+import 'profile_screen.dart';
+import 'shop_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -106,8 +109,13 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          // Coins
-          Container(
+          // Coins — tap to spend them in the Toy Shop
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ShopScreen()),
+            ),
+            child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -130,35 +138,45 @@ class HomeScreen extends StatelessWidget {
                   style: const TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 16),
                 ),
+                const SizedBox(width: 4),
+                const Icon(Icons.add_circle,
+                    size: 16, color: AppColors.goldCoin),
               ],
             ),
           ),
+          ),
           const SizedBox(width: 8),
-          // Lessons today
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          // Buddy — tap to open My Stuff
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('📚', style: TextStyle(fontSize: 18)),
-                const SizedBox(width: 6),
-                Text(
-                  '${state.profile.dailyLessonsCompleted} today',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 14),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: state.buddy?.rarity.color ??
+                      Colors.grey.shade300,
+                  width: 2,
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  state.buddy?.emoji ?? '🙂',
+                  style: const TextStyle(fontSize: 22),
+                ),
+              ),
             ),
           ),
         ],

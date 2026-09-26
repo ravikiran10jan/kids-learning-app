@@ -15,6 +15,7 @@ import 'package:kids_learning_app/models/demo_data.dart';
 import 'package:kids_learning_app/models/math_content.dart';
 import 'package:kids_learning_app/models/english_content.dart';
 import 'package:kids_learning_app/models/homework_content.dart';
+import 'package:kids_learning_app/models/collectible.dart';
 import 'package:kids_learning_app/models/skill.dart';
 import 'package:kids_learning_app/models/unit.dart';
 import 'package:kids_learning_app/screens/welcome_screen.dart';
@@ -22,6 +23,8 @@ import 'package:kids_learning_app/screens/home_screen.dart';
 import 'package:kids_learning_app/screens/lesson_screen.dart';
 import 'package:kids_learning_app/screens/result_screen.dart';
 import 'package:kids_learning_app/screens/streak_screen.dart';
+import 'package:kids_learning_app/screens/shop_screen.dart';
+import 'package:kids_learning_app/screens/profile_screen.dart';
 import 'package:kids_learning_app/utils/sound_util.dart';
 
 // ═══════════════════════════════════════════════════════════
@@ -1215,6 +1218,147 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Leaving so soon?'), findsNothing);
       expect(find.byType(LessonScreen), findsOneWidget);
+    });
+
+    test('12.7 Spelling Practice 6 contains the assigned words', () {
+      final words = homeworkItems
+          .where((i) => i.skillId == 'hw6')
+          .map((i) => i.answer.join())
+          .toList();
+      expect(words, [
+        'space', 'prism', 'circle', 'create', 'sphere',
+        'square', 'smooth', 'modern', 'corners', 'rectangle',
+      ]);
+      expect(homeworkUnits.first.skillIds, contains('hw6'));
+    });
+  });
+
+  // ─── Epic 14: Toy Shop and Collection ───
+  group('Epic 14: Toy Shop and Collection', () {
+    late AppState state;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({
+        'profile_name': 'Test',
+        'profile_id': 'test',
+        'coins': 200,
+      });
+      state = AppState();
+      await state.init();
+    });
+
+    test('14.1 Catalogue items are unique and sensibly priced', () {
+      final ids = shopCatalogue.map((c) => c.id).toList();
+      expect(ids.toSet().length, ids.length, reason: 'duplicate collectible ids');
+      for (final c in shopCatalogue) {
+        expect(c.price, greaterThan(0));
+        expect(c.emoji, isNotEmpty);
+      }
+      // Rarer things cost more than the cheapest common item
+      final cheapest = shopCatalogue.map((c) => c.price).reduce((a, b) => a < b ? a : b);
+      for (final c in shopCatalogue.where((c) => c.rarity == Rarity.legendary)) {
+        expect(c.price, greaterThan(cheapest * 5));
+      }
+    });
+
+    test('14.2 Buying an affordable item spends coins and adds it', () async {
+      final item = shopCatalogue.firstWhere((c) => c.price <= 200);
+      expect(state.owns(item.id), isFalse);
+
+      final bought = await state.buyCollectible(item);
+      expect(bought, isTrue);
+      expect(state.owns(item.id), isTrue);
+      expect(state.profile.coins, 200 - item.price);
+      // First purchase becomes the buddy automatically
+      expect(state.buddyId, item.id);
+    });
+
+    test('14.3 Cannot buy what you cannot afford, or buy twice', () async {
+      final tooDear = shopCatalogue.firstWhere((c) => c.price > 200);
+      expect(await state.buyCollectible(tooDear), isFalse);
+      expect(state.profile.coins, 200, reason: 'no coins should be spent');
+
+      final item = shopCatalogue.firstWhere((c) => c.price <= 200);
+      await state.buyCollectible(item);
+      final after = state.profile.coins;
+      expect(await state.buyCollectible(item), isFalse);
+      expect(state.profile.coins, after, reason: 'no double charge');
+    });
+
+    test('14.4 Buddy can only be set to an owned item', () async {
+      // Two items the 200 starting coins can cover together
+      final cheap = [...shopCatalogue]..sort((a, b) => a.price.compareTo(b.price));
+      final owned = cheap[0];
+      final other = cheap[1];
+      await state.buyCollectible(owned);
+
+      await state.setBuddy(other.id);
+      expect(state.buddyId, owned.id, reason: 'unowned item cannot be the buddy');
+
+      await state.buyCollectible(other);
+      await state.setBuddy(other.id);
+      expect(state.buddyId, other.id);
+    });
+
+    test('14.5 Next goal is the cheapest item not yet owned', () async {
+      final cheapest = state.nextGoal!;
+      for (final c in shopCatalogue) {
+        expect(c.price, greaterThanOrEqualTo(cheapest.price));
+      }
+      await state.buyCollectible(cheapest);
+      expect(state.nextGoal!.id, isNot(cheapest.id));
+    });
+
+    testWidgets('14.6 Shop shows the wallet and a purchasable item', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: state,
+          child: const MaterialApp(home: ShopScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Toy Shop'), findsOneWidget);
+      expect(find.text('coins to spend'), findsOneWidget);
+      expect(find.text('0 / ${shopCatalogue.length}'), findsOneWidget);
+      expect(find.text(shopCatalogue.first.name), findsOneWidget);
+    });
+
+    testWidgets('14.7 Profile shows collection progress and owned items',
+        (tester) async {
+      final item = shopCatalogue.firstWhere((c) => c.price <= 200);
+      await state.buyCollectible(item);
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: state,
+          child: const MaterialApp(home: ProfileScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('My Stuff'), findsOneWidget);
+      expect(find.text('My Collection'), findsOneWidget);
+      expect(find.text('1 of ${shopCatalogue.length}'), findsOneWidget);
+      // Bought item is the buddy, so its name is shown on the buddy card
+      expect(find.text(item.name), findsOneWidget);
+    });
+
+    testWidgets('14.8 Home header opens the shop and My Stuff', (tester) async {
+      await tester.pumpWidget(const KidsLearnApp());
+      await tester.pumpAndSettle();
+
+      // Coin chip -> shop
+      await tester.tap(find.text('🪙'));
+      await tester.pumpAndSettle();
+      expect(find.text('Toy Shop'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      // Buddy avatar -> My Stuff
+      await tester.tap(find.text('🙂'));
+      await tester.pumpAndSettle();
+      expect(find.text('My Stuff'), findsOneWidget);
     });
   });
 

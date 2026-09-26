@@ -77,6 +77,48 @@ And the selected section is remembered the next time the app opens
 
 ---
 
+## Epic 1b: Toy Shop and Collection
+
+### Scenario 1b.1: Spend coins in the Toy Shop
+```gherkin
+Given the child has earned coins from lessons
+When the child taps the coin chip on the Home screen
+Then the Toy Shop opens showing toys, characters, pets and space items
+And each item shows its price and whether it is already owned
+When the child taps an item they can afford and confirms
+Then the coins are deducted
+And an unlock celebration shows the item and its rarity
+And the item is added to their collection
+```
+
+### Scenario 1b.2: Items that cost more than the child has
+```gherkin
+Given an item costs more coins than the child has
+When the child taps that item
+Then it is shown greyed out with the number of coins still needed
+And no coins are deducted
+```
+
+### Scenario 1b.3: Collection and buddy on the profile
+```gherkin
+Given the child owns at least one collectible
+When the child taps the buddy avatar on the Home screen
+Then "My Stuff" opens showing their buddy, coins, streak and lessons
+And the collection grid shows owned items and locked slots
+When the child taps an owned item
+Then that item becomes their buddy and appears in the Home header
+```
+
+### Scenario 1b.4: Next goal keeps motivation up
+```gherkin
+Given the child has just finished a lesson
+When the result screen is shown
+Then it shows how many more coins are needed for the next item
+And tapping it opens the Toy Shop
+```
+
+---
+
 ## Epic 2: Skill Path Navigation
 
 ### Scenario 2.1: Path displays skill nodes in order

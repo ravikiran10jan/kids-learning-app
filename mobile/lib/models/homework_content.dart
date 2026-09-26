@@ -8,7 +8,7 @@ import 'item.dart';
 // Homework is a separate section from the regular curriculum path.
 // Homework skills have no prerequisites and are always unlocked.
 final List<Unit> homeworkUnits = [
-  Unit(id: 'eng-hw', subject: Subject.ENGLISH, code: 'ENG-HW', title: 'Homework', skillIds: ['hw1', 'hw2', 'hw3', 'hw4', 'hw5']),
+  Unit(id: 'eng-hw', subject: Subject.ENGLISH, code: 'ENG-HW', title: 'Homework', skillIds: ['hw1', 'hw2', 'hw3', 'hw4', 'hw5', 'hw6']),
 ];
 
 // ─── Homework Skills ──────────────────────────────────────────────────────────
@@ -26,7 +26,9 @@ final List<Skill> homeworkSkills = [
       itemIds: ['ei492','ei493','ei494','ei495','ei496','ei497','ei498','ei499','ei500','ei501']),
   Skill(id: 'hw5', subject: Subject.ENGLISH, unitCode: 'ENG-HW',
       title: 'Spelling Practice 5', icon: '🏙️', prerequisites: [],
-      itemIds: ['ei502','ei503','ei504','ei505','ei506','ei507','ei508','ei509','ei510','ei511']),
+      itemIds: ['ei502','ei503','ei504','ei505','ei506','ei507','ei508','ei509','ei510','ei511']),  Skill(id: 'hw6', subject: Subject.ENGLISH, unitCode: 'ENG-HW',
+      title: 'Spelling Practice 6', icon: '📐', prerequisites: [],
+      itemIds: ['ei512','ei513','ei514','ei515','ei516','ei517','ei518','ei519','ei520','ei521']),
 ];
 
 // ─── Homework Items ───────────────────────────────────────────────────────────
@@ -181,4 +183,34 @@ final List<Item> homeworkItems = [
   Item(id: 'ei511', skillId: 'hw5', exerciseType: ExerciseType.spell_tiles,
       prompt: ItemPrompt(text: 'Spell this: 🗺️ (a land with its own people and flag, like India)'),
       answer: ['c', 'o', 'u', 'n', 't', 'r', 'y'], distractors: ['a', 'e', 'i']),
+  Item(id: 'ei512', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🚀 (the huge dark area where the stars and planets are)'),
+      answer: ['s', 'p', 'a', 'c', 'e'], distractors: ['i', 'o', 'y']),
+  Item(id: 'ei513', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🔺 (a clear glass shape that splits light into a rainbow)'),
+      answer: ['p', 'r', 'i', 's', 'm'], distractors: ['a', 'e', 'o']),
+  Item(id: 'ei514', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ⭕ (a round shape with no corners)'),
+      answer: ['c', 'i', 'r', 'c', 'l', 'e'], distractors: ['a', 'o', 's']),
+  Item(id: 'ei515', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🛠️ (to make or produce something)'),
+      answer: ['c', 'r', 'e', 'a', 't', 'e'], distractors: ['o', 's', 'i']),
+  Item(id: 'ei516', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ⚽ (a perfectly round solid shape, like a ball)'),
+      answer: ['s', 'p', 'h', 'e', 'r', 'e'], distractors: ['a', 'o', 't']),
+  Item(id: 'ei517', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🟦 (a shape with 4 equal sides)'),
+      answer: ['s', 'q', 'u', 'a', 'r', 'e'], distractors: ['c', 'o', 'i']),
+  Item(id: 'ei518', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🧈 (having an even surface, not rough)'),
+      answer: ['s', 'm', 'o', 'o', 't', 'h'], distractors: ['a', 'e', 'n']),
+  Item(id: 'ei519', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🏢 (up to date, not old-fashioned)'),
+      answer: ['m', 'o', 'd', 'e', 'r', 'n'], distractors: ['a', 'p', 's']),
+  Item(id: 'ei520', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 📐 (the points where two sides meet)'),
+      answer: ['c', 'o', 'r', 'n', 'e', 'r', 's'], distractors: ['a', 'd', 't']),
+  Item(id: 'ei521', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🟥 (a shape with 4 sides — two long, two short)'),
+      answer: ['r', 'e', 'c', 't', 'a', 'n', 'g', 'l', 'e'], distractors: ['i', 'o', 's']),
 ];

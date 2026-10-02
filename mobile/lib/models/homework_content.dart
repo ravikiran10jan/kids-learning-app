@@ -8,7 +8,7 @@ import 'item.dart';
 // Homework is a separate section from the regular curriculum path.
 // Homework skills have no prerequisites and are always unlocked.
 final List<Unit> homeworkUnits = [
-  Unit(id: 'eng-hw', subject: Subject.ENGLISH, code: 'ENG-HW', title: 'Homework', skillIds: ['hw1', 'hw2', 'hw3', 'hw4', 'hw5', 'hw6']),
+  Unit(id: 'eng-hw', subject: Subject.ENGLISH, code: 'ENG-HW', title: 'Homework', skillIds: ['hw1', 'hw2', 'hw3', 'hw4', 'hw5', 'hw6', 'hw7']),
 ];
 
 // ─── Homework Skills ──────────────────────────────────────────────────────────
@@ -28,7 +28,9 @@ final List<Skill> homeworkSkills = [
       title: 'Spelling Practice 5', icon: '🏙️', prerequisites: [],
       itemIds: ['ei502','ei503','ei504','ei505','ei506','ei507','ei508','ei509','ei510','ei511']),  Skill(id: 'hw6', subject: Subject.ENGLISH, unitCode: 'ENG-HW',
       title: 'Spelling Practice 6', icon: '📐', prerequisites: [],
-      itemIds: ['ei512','ei513','ei514','ei515','ei516','ei517','ei518','ei519','ei520','ei521']),
+      itemIds: ['ei512','ei513','ei514','ei515','ei516','ei517','ei518','ei519','ei520','ei521']),  Skill(id: 'hw7', subject: Subject.ENGLISH, unitCode: 'ENG-HW',
+      title: 'Spelling Practice 7', icon: '➕', prerequisites: [],
+      itemIds: ['ei522','ei523','ei524','ei525','ei526','ei527','ei528','ei529','ei530','ei531']),
 ];
 
 // ─── Homework Items ───────────────────────────────────────────────────────────
@@ -213,4 +215,34 @@ final List<Item> homeworkItems = [
   Item(id: 'ei521', skillId: 'hw6', exerciseType: ExerciseType.spell_tiles,
       prompt: ItemPrompt(text: 'Spell this: 🟥 (a shape with 4 sides — two long, two short)'),
       answer: ['r', 'e', 'c', 't', 'a', 'n', 'g', 'l', 'e'], distractors: ['i', 'o', 's']),
+  Item(id: 'ei522', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ➕ (to put numbers or things together to get a bigger total)'),
+      answer: ['a', 'd', 'd'], distractors: ['e', 'o', 'p']),
+  Item(id: 'ei523', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ➕ (the sign + that means "and" or "added to")'),
+      answer: ['p', 'l', 'u', 's'], distractors: ['a', 'o', 'd']),
+  Item(id: 'ei524', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🟰 (the same amount as, like 2 + 2 = 4)'),
+      answer: ['e', 'q', 'u', 'a', 'l'], distractors: ['i', 'o', 's']),
+  Item(id: 'ei525', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🔮 (to say what you think will happen next)'),
+      answer: ['p', 'r', 'e', 'd', 'i', 'c', 't'], distractors: ['a', 'l', 'n']),
+  Item(id: 'ei526', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🌍 (the usual weather of a place over many years)'),
+      answer: ['c', 'l', 'i', 'm', 'a', 't', 'e'], distractors: ['o', 'y', 'n']),
+  Item(id: 'ei527', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🧩 (something hard that needs to be solved)'),
+      answer: ['p', 'r', 'o', 'b', 'l', 'e', 'm'], distractors: ['a', 'i', 't']),
+  Item(id: 'ei528', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🧈 (having an even surface, not rough)'),
+      answer: ['s', 'm', 'o', 'o', 't', 'h'], distractors: ['a', 'e', 'n']),
+  Item(id: 'ei529', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🗣️ (to say what something is like)'),
+      answer: ['d', 'e', 's', 'c', 'r', 'i', 'b', 'e'], distractors: ['a', 'o', 't']),
+  Item(id: 'ei530', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🏢 (up to date, not old-fashioned)'),
+      answer: ['m', 'o', 'd', 'e', 'r', 'n'], distractors: ['a', 'p', 's']),
+  Item(id: 'ei531', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ⭐ (the one you like best of all)'),
+      answer: ['f', 'a', 'v', 'o', 'u', 'r', 'i', 't', 'e'], distractors: ['y', 's', 'l']),
 ];

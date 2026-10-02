@@ -1231,6 +1231,18 @@ void main() {
       ]);
       expect(homeworkUnits.first.skillIds, contains('hw6'));
     });
+
+    test('12.8 Spelling Practice 7 contains the assigned words', () {
+      final words = homeworkItems
+          .where((i) => i.skillId == 'hw7')
+          .map((i) => i.answer.join())
+          .toList();
+      expect(words, [
+        'add', 'plus', 'equal', 'predict', 'climate',
+        'problem', 'smooth', 'describe', 'modern', 'favourite',
+      ]);
+      expect(homeworkUnits.first.skillIds, contains('hw7'));
+    });
   });
 
   // ─── Epic 14: Toy Shop and Collection ───

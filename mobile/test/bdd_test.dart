@@ -1243,6 +1243,18 @@ void main() {
       ]);
       expect(homeworkUnits.first.skillIds, contains('hw7'));
     });
+
+    test('12.9 Spelling Practice 8 contains the assigned words', () {
+      final words = homeworkItems
+          .where((i) => i.skillId == 'hw8')
+          .map((i) => i.answer.join())
+          .toList();
+      expect(words, [
+        'erasers', 'setting', 'finally', 'event', 'cause',
+        'effect', 'snacks', 'action', 'story', 'share',
+      ]);
+      expect(homeworkUnits.first.skillIds, contains('hw8'));
+    });
   });
 
   // ─── Epic 14: Toy Shop and Collection ───

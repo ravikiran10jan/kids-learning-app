@@ -8,7 +8,7 @@ import 'item.dart';
 // Homework is a separate section from the regular curriculum path.
 // Homework skills have no prerequisites and are always unlocked.
 final List<Unit> homeworkUnits = [
-  Unit(id: 'eng-hw', subject: Subject.ENGLISH, code: 'ENG-HW', title: 'Homework', skillIds: ['hw1', 'hw2', 'hw3', 'hw4', 'hw5', 'hw6', 'hw7']),
+  Unit(id: 'eng-hw', subject: Subject.ENGLISH, code: 'ENG-HW', title: 'Homework', skillIds: ['hw1', 'hw2', 'hw3', 'hw4', 'hw5', 'hw6', 'hw7', 'hw8']),
 ];
 
 // ─── Homework Skills ──────────────────────────────────────────────────────────
@@ -30,7 +30,9 @@ final List<Skill> homeworkSkills = [
       title: 'Spelling Practice 6', icon: '📐', prerequisites: [],
       itemIds: ['ei512','ei513','ei514','ei515','ei516','ei517','ei518','ei519','ei520','ei521']),  Skill(id: 'hw7', subject: Subject.ENGLISH, unitCode: 'ENG-HW',
       title: 'Spelling Practice 7', icon: '➕', prerequisites: [],
-      itemIds: ['ei522','ei523','ei524','ei525','ei526','ei527','ei528','ei529','ei530','ei531']),
+      itemIds: ['ei522','ei523','ei524','ei525','ei526','ei527','ei528','ei529','ei530','ei531']),  Skill(id: 'hw8', subject: Subject.ENGLISH, unitCode: 'ENG-HW',
+      title: 'Spelling Practice 8', icon: '🎪', prerequisites: [],
+      itemIds: ['ei532','ei533','ei534','ei535','ei536','ei537','ei538','ei539','ei540','ei541']),
 ];
 
 // ─── Homework Items ───────────────────────────────────────────────────────────
@@ -245,4 +247,34 @@ final List<Item> homeworkItems = [
   Item(id: 'ei531', skillId: 'hw7', exerciseType: ExerciseType.spell_tiles,
       prompt: ItemPrompt(text: 'Spell this: ⭐ (the one you like best of all)'),
       answer: ['f', 'a', 'v', 'o', 'u', 'r', 'i', 't', 'e'], distractors: ['y', 's', 'l']),
+  Item(id: 'ei532', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🧽 (rubber tools that rub out pencil marks)'),
+      answer: ['e', 'r', 'a', 's', 'e', 'r', 's'], distractors: ['l', 't', 'o']),
+  Item(id: 'ei533', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🏞️ (the place and time where a story happens)'),
+      answer: ['s', 'e', 't', 't', 'i', 'n', 'g'], distractors: ['a', 'o', 'r']),
+  Item(id: 'ei534', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🏁 (at last, after a long time)'),
+      answer: ['f', 'i', 'n', 'a', 'l', 'l', 'y'], distractors: ['e', 'o', 't']),
+  Item(id: 'ei535', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🎪 (something that happens, like a party or a race)'),
+      answer: ['e', 'v', 'e', 'n', 't'], distractors: ['a', 'i', 's']),
+  Item(id: 'ei536', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ➡️ (the reason why something happens)'),
+      answer: ['c', 'a', 'u', 's', 'e'], distractors: ['i', 'o', 't']),
+  Item(id: 'ei537', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: ✨ (what happens because of something else)'),
+      answer: ['e', 'f', 'f', 'e', 'c', 't'], distractors: ['a', 'i', 'l']),
+  Item(id: 'ei538', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🍪 (small bites of food you eat between meals)'),
+      answer: ['s', 'n', 'a', 'c', 'k', 's'], distractors: ['e', 'i', 't']),
+  Item(id: 'ei539', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🏃 (doing something, with lots of movement)'),
+      answer: ['a', 'c', 't', 'i', 'o', 'n'], distractors: ['e', 'l', 's']),
+  Item(id: 'ei540', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 📖 (a tale with a beginning, middle and end)'),
+      answer: ['s', 't', 'o', 'r', 'y'], distractors: ['a', 'e', 'i']),
+  Item(id: 'ei541', skillId: 'hw8', exerciseType: ExerciseType.spell_tiles,
+      prompt: ItemPrompt(text: 'Spell this: 🤝 (to let someone else have some too)'),
+      answer: ['s', 'h', 'a', 'r', 'e'], distractors: ['i', 'o', 't']),
 ];

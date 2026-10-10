@@ -12,7 +12,6 @@ import '../models/english_content.dart';
 import '../models/homework_content.dart';
 import '../models/skill.dart';
 import '../models/collectible.dart';
-import '../services/api_service.dart';
 import '../utils/sound_util.dart';
 
 /// Top-level sections shown as tabs on the Home screen.
@@ -28,7 +27,6 @@ HomeSection parseHomeSection(String? s) {
 }
 
 class AppState extends ChangeNotifier {
-  final ApiService _api = ApiService();
   ChildProfile _profile = ChildProfile(id: 'default');
   HomeSection _currentSection = HomeSection.math;
   bool _loaded = false;
@@ -113,7 +111,6 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    await _api.checkConnection();
     await _loadProfile();
     _loaded = true;
     notifyListeners();
@@ -321,9 +318,6 @@ class AppState extends ChangeNotifier {
     await prefs.setInt('lessons_this_streak', _lessonsThisStreak);
     await prefs.setString('last_practice_date', _lastPracticeDate ?? '');
     await prefs.setInt('mastery_${result.skillId}', _skillMastery[result.skillId]!);
-
-    // Try to submit to backend (fire-and-forget)
-    _api.submitLesson(result);
 
     notifyListeners();
   }

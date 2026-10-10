@@ -18,7 +18,7 @@ class KidsLearnApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => AppState()..init(),
       child: MaterialApp(
-        title: 'KidsLearn',
+        title: 'Bright Steps Learning',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         home: const _Gate(),

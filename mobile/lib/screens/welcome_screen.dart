@@ -47,7 +47,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
           const SizedBox(height: 32),
           Text(
-            'KidsLearn',
+            'Bright Steps Learning',
             style: Theme.of(context).textTheme.headlineLarge,
           ),
           const SizedBox(height: 12),

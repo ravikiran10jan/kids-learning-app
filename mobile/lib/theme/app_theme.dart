@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppColors {
   static const primary = Color(0xFF58CC02);       // Vibrant green
@@ -71,6 +72,9 @@ class AppTheme {
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          // Transparent app bars make Flutter estimate a dark background and
+          // pick white status-bar icons, which vanish on our light screens.
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
           iconTheme: IconThemeData(color: AppColors.textPrimary),
           titleTextStyle: TextStyle(
             color: AppColors.textPrimary,

@@ -42,7 +42,7 @@ void main() {
       await tester.pumpWidget(const KidsLearnApp());
       await tester.pumpAndSettle();
 
-      expect(find.text('KidsLearn'), findsOneWidget);
+      expect(find.text('Bright Steps Learning'), findsOneWidget);
       expect(find.text('GET STARTED'), findsOneWidget);
     });
 

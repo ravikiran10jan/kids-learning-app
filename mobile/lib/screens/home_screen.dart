@@ -139,7 +139,9 @@ class HomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700, fontSize: 16),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.add_circle,
+                // The shop icon, not a plus: nothing here can add coins, and a
+                // "+" reads as a way to buy them in an app that has no purchases.
+                const Icon(Icons.storefront,
                     size: 16, color: AppColors.goldCoin),
               ],
             ),
